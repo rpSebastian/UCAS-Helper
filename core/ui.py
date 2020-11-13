@@ -13,7 +13,7 @@ from core.grade import GradeObserver
 from core.download import Downloader
 from core.exception import BackToMain
 from core.wifi import WifiLoginer,WifiError
-
+from core.lecture import LectureSelector
 import settings
 
 WELCOME_MESSAGE = """
@@ -31,6 +31,7 @@ WELCOME_MESSAGE = """
 **                            3:wifi logout                                    **
 **                            4:course assess                                  **
 **                            5:query grades                                   **
+**                            6:select lecture                                 **
 **                            q:exit                                           **
 *********************************************************************************
 """
@@ -47,6 +48,7 @@ class Init:
                  downloader=None,
                  assesser= None,
                  gradeObserver = None,
+                 lectureSelector = None
                  ):
         self._logger = logging.getLogger("Init")
         self._welcome_msg = welcome_msg
@@ -54,6 +56,7 @@ class Init:
         self._downloader = downloader
         self._assesser = assesser
         self._grade_observer = gradeObserver
+        self._lectureSelector = lectureSelector
 
     def _show_welcome(self):
         print(self._welcome_msg)
@@ -66,7 +69,7 @@ class Init:
                 print("欢迎使用，下次再会~")
                 exit(200)
 
-            elif not (option.isdigit() and 1<=int(option)<=5) :
+            elif not (option.isdigit() and 1<=int(option)<=6) :
                 self._logger.warning("非法操作，请重新输入")
             else:
                 option = int(option)
@@ -93,6 +96,9 @@ class Init:
 
                 elif option == 5:
                     self._grade_observer.run()
+                
+                elif option == 6:
+                    self._lectureSelector.run()
 
     def run(self):
         self._show_welcome()
@@ -110,7 +116,9 @@ def main():
                         assess_msgs=settings.ASSESS_MSG)
     gradeObserver = GradeObserver(user_info=settings.USER_INFO,
                                   urls=settings.URLS)
-    init = Init(WELCOME_MESSAGE, wifiLoginer, downloader,assesser, gradeObserver)
+    lectureSelector = LectureSelector(user_info=settings.USER_INFO,
+                            urls=settings.URLS, interval=settings.SELECT_COURSE_INTERVAL)      
+    init = Init(WELCOME_MESSAGE, wifiLoginer, downloader,assesser, gradeObserver, lectureSelector)
     init.run()
 
 

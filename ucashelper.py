@@ -15,7 +15,7 @@ from core.assess import Assesser
 from core.grade import GradeObserver
 from core.download import Downloader
 from core.wifi import WifiLoginer
-
+from core.lecture import LectureSelector
 import settings
 
 
@@ -70,9 +70,14 @@ def logout_wifi():
     wifiLoginer = WifiLoginer(accounts_path=settings.ACCOUNTS_PATH)
     wifiLoginer.logout()
 
+@click.command(name='lecture',help='Automatic select lecture')
+def select_lecture():
+    lectureSelector = LectureSelector(user_info=settings.USER_INFO, urls=settings.URLS, interval=settings.SELECT_COURSE_INTERVAL)
+    lectureSelector.run()
+
 
 if __name__ == '__main__':
-    commands = [UI,auto_assess,download_source,query_grades,hack_accounts,login_wifi,logout_wifi]
+    commands = [UI,auto_assess,download_source,query_grades,hack_accounts,login_wifi,logout_wifi, select_lecture]
     for command in commands:
         start.add_command(command)
     start()
