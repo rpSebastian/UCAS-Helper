@@ -11,10 +11,10 @@ USER_INFO = {
     'username': '',
     'password': '',
     'remember': 'undefined',  # 此处不要动
-    'SCKEY': '' # 方糖推送KEY
+    'SCKEY': '' # 方糖推送KEY; http://sc.ftqq.com/3.version
 }
 SOURCE_DIR = '' # 本地课件下载目录
-SELECT_COURSE_INTERVAL = 600 # 抢课间隔
+SELECT_COURSE_INTERVAL = 10 # 抢课间隔
 
 # ------------------后面的不要动--------------#
 
@@ -67,6 +67,10 @@ URLS = {
     'lecture_sign_url':{
         'http': 'http://jwxk.ucas.ac.cn/subject/toSign',
         'https':'https://jwxk.ucas.ac.cn/subject/toSign'
+    },
+    'registered_lecture_url':{
+        'http': 'http://jwxk.ucas.ac.cn/subject/humanityStudent',
+        'https':'https://jwxk.ucas.ac.cn/subject/humanityStudent'
     },
     'wechat_push_url': "https://sc.ftqq.com/"
 }

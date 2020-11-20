@@ -29,11 +29,17 @@ class LectureSelector(Loginer):
             name = name.string
             lec_time = lec_time.string
             tea = tea.string
+            lecture_id = int(re.findall(r"\d+", name)[0])
+            if lecture_id in self.registered_lecture:
+                continue
             if "预约已结束" in op.text:
                 continue
             self._logger.info("讲座名称: {}".format(name))
             self._logger.info("讲座时间: {}".format(lec_time))
             self._logger.info("主讲人: {}".format(tea))
+            if len(op.find_all('a')) == 1:
+                self._logger.info("预约未开始")
+                continue
             _, click = op.find_all('a')
             text = click.attrs["onclick"]
             res = re.findall(r"'(.*?)'", text)
@@ -46,7 +52,8 @@ class LectureSelector(Loginer):
                 res = self._S.post(url = self._urls['lecture_sign_url']['http'], headers=self.headers, data=data, timeout=5)
             except requests.Timeout:
                 res = self._S.post(url = self._urls['lecture_sign_url']['http'], headers=self.headers, data=data)
-            if res.text != "countFail":
+            if res.text == "success":
+                self._logger.warning(res.text)
                 self._logger.warning("抢课成功")
                 if self._urls['wechat_push_url'] and self._user_info['SCKEY']:
                     url = self._urls['wechat_push_url'] + self._user_info['SCKEY'] + ".send"
@@ -62,10 +69,32 @@ class LectureSelector(Loginer):
                     res = requests.post(url=url, data=data)
             print("===================================================")
 
+    def get_registered_lecture(self):
+        try:
+            res = self._S.get(url=self._urls['registered_lecture_url']['http'], headers=self.headers, timeout=5)
+        except requests.Timeout:
+            res = self._S.get(url=self._urls['registered_lecture_url']['https'], headers=self.headers)
+
+        bsobj = BeautifulSoup(res.text, "html.parser")
+        table = bsobj.tbody
+        tr_all = table.find_all("tr")
+        self.registered_lecture = []
+        for tr in tr_all:
+            td_all = tr.find_all('td')
+            name, *_ = td_all
+            name = name.string
+            lecture_id = int(re.findall(r"\d+", name)[0])
+            self.registered_lecture.append(lecture_id)
+
     def run(self):
         self.login()
         while True:
             self._logger.info("开始抢课")
-            self.select_lecture()
+            try:
+                self.get_registered_lecture()
+                self.select_lecture()
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
             self._logger.info("结束抢课")
             time.sleep(self._interval)
