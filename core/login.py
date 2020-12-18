@@ -51,8 +51,7 @@ class Loginer(object):
 
     def login(self):
         try:
-            res = self._S.post(url=self._urls["login_url"]['http'], data=self._user_info, headers=self.headers, timeout=10)
-
+            res = self._S.post(url=self._urls["login_url"]['http'], data=self._user_info, headers=self.headers, timeout=10, verify=False)
         except (requests.exceptions.ConnectionError,
                 requests.exceptions.ConnectTimeout,
                 requests.exceptions.ReadTimeout):
